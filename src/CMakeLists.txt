@@ -95,12 +95,12 @@ endif(ENABLE_TESTS)
 add_subdirectory(msg4r)
 add_subdirectory(comm-io)
 
-set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME applications)
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME runtimes)
 
 if(MSVC)
 
   set(CMAKE_INSTALL_UCRT_LIBRARIES ON)
-  set(CMAKE_INSTALL_MFC_LIBRARIES ON)
+  #set(CMAKE_INSTALL_MFC_LIBRARIES ON)
 
   include (InstallRequiredSystemLibraries)
 
@@ -120,6 +120,10 @@ if(MSVC)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}-${OS_BIT}")
 
   INCLUDE(CPack)
+
+  cpack_add_component(runtimes
+    DISPLAY_NAME "Runtime Libraries"
+    DESCRIPTION "Supported Runtime Libraries.")
 
   cpack_add_component(applications
     DISPLAY_NAME "Applications"
