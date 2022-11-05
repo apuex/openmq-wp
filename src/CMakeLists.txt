@@ -5,12 +5,35 @@ cmake_policy(SET CMP0091 NEW)
 
 PROJECT(openmq-wp)
 
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 0)
+
+find_program(GIT_COMMAND git)
+if ("${GIT_COMMAND}" MATCHES "GIT_COMMAND-NOTFOUND")
+  set(PROJECT_VERSION_PATCH 1)
+else()
+  EXECUTE_PROCESS( COMMAND git -C ${PROJECT_SOURCE_DIR} rev-list --count HEAD OUTPUT_VARIABLE REVISION_NO_RAW)
+  string(REGEX REPLACE "[ \t\r\n]" "" PROJECT_VERSION_PATCH "${REVISION_NO_RAW}")
+  EXECUTE_PROCESS( COMMAND git log --max-count=1 --pretty=oneline OUTPUT_VARIABLE REVISION_MSG_RAW)
+  string(REGEX REPLACE "[\t\r\n]" "" PROJECT_REVISION_MSG "${REVISION_MSG_RAW}")
+endif()
+
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+message("${PROJECT_NAME}-${PROJECT_VERSION}")
+message("${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
+message("PROJECT_REVISION_MSG=${PROJECT_REVISION_MSG}")
+
 SET(CMAKE_CXX_STANDARD 11)
 
 option(ENABLE_TESTS    "Enable building tests." ON)
 option(ENABLE_VALGRIND "Enable the valgrind memory checker for the tests." OFF)
 
 if(MSVC)
+  if(CMAKE_CL_64)
+    set(OS_BIT "win64")
+  else()
+    set(OS_BIT "win32")
+  endif()
   SET(CMAKE_CXX_FLAGS "/MD /EHsc")
   ADD_DEFINITIONS(-D_WIN32_WINNT=0x0502)
   ADD_DEFINITIONS(-DWIN32_LEAN_AND_MEAN)
@@ -72,4 +95,50 @@ endif(ENABLE_TESTS)
 add_subdirectory(msg4r)
 add_subdirectory(comm-io)
 
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME applications)
 
+if(MSVC)
+
+  set(CMAKE_INSTALL_UCRT_LIBRARIES ON)
+  set(CMAKE_INSTALL_MFC_LIBRARIES ON)
+
+  include (InstallRequiredSystemLibraries)
+
+  set(CPACK_GENERATOR WIX)
+  set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+  set(CPACK_PACKAGE_DESCRIPTION "OpenMQ components")
+  set(CPACK_PACKAGE_VENDOR "Wangxy")
+  set(CPACK_WIX_UPGRADE_GUID "0CD5A527-5D82-4E4A-9422-8251DC28E093")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenMQ Wiring Protocol C++ Implementation.")
+  set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+  set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+  set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+  set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+  set(CPACK_NSIS_MODIFY_PATH ON)
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_VENDOR}/${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}-${OS_BIT}")
+
+  INCLUDE(CPack)
+
+  cpack_add_component(applications
+    DISPLAY_NAME "Applications"
+    DESCRIPTION "Applications and Utilities.")
+
+  cpack_add_component(admin-tools
+    DISPLAY_NAME "Administrative Tools"
+    DESCRIPTION "Broker Administrative Tools.")
+
+  cpack_add_component(openmq-broker
+    DISPLAY_NAME "Message Broker"
+    DESCRIPTION "Open Message Queue Broker.")
+
+  cpack_add_component(openmq-rproxy
+    DISPLAY_NAME "Reverse Proxy"
+    DESCRIPTION "Reverse Proxy Server for Open Message Queue Broker.")
+
+  cpack_add_component(libraries
+    DISPLAY_NAME "Development Libraries"
+    DESCRIPTION "Development Libraries and C/C++ Headers")
+
+endif()

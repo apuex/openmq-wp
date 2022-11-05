@@ -6,6 +6,20 @@ SET(MSG4R_SRCS
 ADD_LIBRARY(msg4r STATIC ${MSG4R_SRCS})
 set_target_properties(msg4r PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+install(FILES
+  msg4r.hpp
+  DESTINATION include
+  CONFIGURATIONS Release
+  COMPONENT libraries)
+
+INSTALL(TARGETS
+    msg4r 
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    COMPONENT libraries)
+
 if(ENABLE_TESTS)
   set(unit_tests
     msg4r-binary-test
