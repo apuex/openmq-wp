@@ -126,22 +126,28 @@ if(MSVC)
     DESCRIPTION "Supported Runtime Libraries.")
 
   cpack_add_component(applications
+    DEPENDS runtimes
     DISPLAY_NAME "Applications"
     DESCRIPTION "Applications and Utilities.")
 
   cpack_add_component(admin-tools
+    DEPENDS runtimes
     DISPLAY_NAME "Administrative Tools"
     DESCRIPTION "Broker Administrative Tools.")
 
   cpack_add_component(openmq-broker
+    DEPENDS runtimes
     DISPLAY_NAME "Message Broker"
     DESCRIPTION "Open Message Queue Broker.")
 
   cpack_add_component(openmq-rproxy
+    DEPENDS runtimes
     DISPLAY_NAME "Reverse Proxy"
     DESCRIPTION "Reverse Proxy Server for Open Message Queue Broker.")
 
   cpack_add_component(libraries
+    DISABLED
+    DEPENDS runtimes
     DISPLAY_NAME "Development Libraries"
     DESCRIPTION "Development Libraries and C/C++ Headers")
 
