@@ -60,10 +60,8 @@ foreach(unit_test ${unit_tests})
     "${unit_test}"
     CONFIGURATIONS Release
     RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
     COMPONENT unittests)
-  
+
   if(ENABLE_VALGRIND)
     if(MEMORYCHECK_COMMAND)
       add_test(NAME "${unit_test}"

@@ -6,6 +6,20 @@ SET(COMM_IO_SRCS
 ADD_LIBRARY(comm-io STATIC ${COMM_IO_SRCS})
 set_target_properties(comm-io PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+install(FILES
+  comm-io.hpp
+  DESTINATION include
+  CONFIGURATIONS Release
+  COMPONENT libraries)
+
+INSTALL(TARGETS
+    comm-io
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    COMPONENT libraries)
+
 if(ENABLE_TESTS)
   set(unit_tests
     comm-io-fail-test
@@ -19,7 +33,13 @@ foreach(unit_test ${unit_tests})
     set_target_properties("${unit_test}" PROPERTIES LINK_FLAGS_RELEASE -s)
   else(UNIX)
   endif(UNIX)
-  
+
+  INSTALL(TARGETS
+    "${unit_test}"
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION bin
+    COMPONENT unittests)
+
   if(ENABLE_VALGRIND)
     if(MEMORYCHECK_COMMAND)
       add_test(NAME "${unit_test}"
