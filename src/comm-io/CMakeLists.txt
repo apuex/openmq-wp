@@ -23,6 +23,7 @@ INSTALL(TARGETS
 if(ENABLE_TESTS)
   set(unit_tests
     comm-io-fail-test
+    comm-io-variant-test
   )
 
 foreach(unit_test ${unit_tests})
