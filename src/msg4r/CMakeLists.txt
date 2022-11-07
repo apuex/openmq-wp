@@ -55,6 +55,14 @@ foreach(unit_test ${unit_tests})
     set_target_properties("${unit_test}" PROPERTIES LINK_FLAGS_RELEASE -s)
   else(UNIX)
   endif(UNIX)
+
+  INSTALL(TARGETS
+    "${unit_test}"
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    COMPONENT unittests)
   
   if(ENABLE_VALGRIND)
     if(MEMORYCHECK_COMMAND)

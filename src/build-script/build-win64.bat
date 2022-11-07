@@ -12,7 +12,7 @@ cmake -G "NMake Makefiles" ^
 -DCMAKE_MODULE_LINKER_FLAGS="/machine:amd64 /subsystem:console,5.02" ^
 -DCMAKE_STATIC_LINKER_FLAGS="/machine:amd64 /subsystem:console,5.02" ^
 -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL ^
--DCMAKE_INSTALL_PREFIX=D:/Wangxy/Win64 ^
+-DCMAKE_INSTALL_PREFIX=C:/usr64 ^
 -DCMAKE_BUILD_TYPE=Release ^
 -DMSVC_TOOLSET_VERSION=140 ^
 -DMSVC_REDIST_DIR="C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/redist" ^

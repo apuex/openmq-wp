@@ -149,6 +149,12 @@ if(MSVC)
     DISABLED
     DEPENDS runtimes
     DISPLAY_NAME "Development Libraries"
-    DESCRIPTION "Development Libraries and C/C++ Headers")
+    DESCRIPTION "Development Libraries and C/C++ Headers.")
+
+  cpack_add_component(unittests
+    DISABLED
+    DEPENDS runtimes
+    DISPLAY_NAME "Unit Tests"
+    DESCRIPTION "Unit Tests.")
 
 endif()
