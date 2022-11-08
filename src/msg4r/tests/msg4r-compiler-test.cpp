@@ -12,6 +12,7 @@ void printf_sizeof_ref(T& r) {
 }
 
 int main(int argc, char* argv[]) {
+  bool boolean = true;
   uint8_t uint8 = 0;
   uint16_t uint16 = 0;
   uint32_t uint32 = 0;
@@ -29,6 +30,7 @@ int main(int argc, char* argv[]) {
 #endif
   printf("sizeof(uint8_t) = %zd\n", sizeof(uint8_t));
 
+  printf_sizeof_ref(boolean);
   printf_sizeof_ref(int8);
   printf_sizeof_ref(int16);
   printf_sizeof_ref(int32);
