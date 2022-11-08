@@ -2,67 +2,51 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/variant.hpp>
 
-#include <comm-io.hpp>
-#include <msg4r.hpp>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
 #include <sstream>
+#include <type_traits>
 
-namespace comm_io {
+typedef boost::variant
+  < bool
+  , int8_t 
+  , int16_t 
+  , int32_t 
+  , int64_t 
+  , float 
+  , double 
+  , std::string
+  > MyProp;
 
-struct Prop {
-  Prop(PACKET_PROPERTY_TYPE t) : type_(t) {}
-  virtual ~Prop() {}
-  PACKET_PROPERTY_TYPE type_;
+struct output : public boost::static_visitor<>
+{
+  void operator()(bool c) const { std::cout << "  => " << c << '\n'; }
+  void operator()(int8_t c) const { std::cout << "  => \'" << c << "\'\n" << '\n'; }
+  void operator()(int16_t c) const { std::cout << "  => "<< c << '\n'; }
+  void operator()(int32_t c) const { std::cout << "  => "<< c << '\n'; }
+  void operator()(int64_t c) const { std::cout << "  => "<< c << '\n'; }
+  void operator()(float d) const { std::cout << "  => "<< d << '\n'; }
+  void operator()(double d) const { std::cout << "  => "<< d << '\n'; }
+  void operator()(std::string s) const { std::cout << "  => \"" << s << "\"\n"; }
 };
 
-struct BoolProp : public Prop {
-  BoolProp() : Prop(PACKET_PROPERTY_TYPE::BOOLEAN) {}
-  virtual ~BoolProp() {}
-};
+BOOST_AUTO_TEST_CASE(VariantTest) {
+  std::map<std::string, MyProp> myProps
+  =
+  { { "a bool",  true }
+  , { "an int8_t",  static_cast<int8_t>(0x41) }
+  , { "an int16_t",  static_cast<int16_t>(0x41) }
+  , { "an int32_t",  static_cast<int32_t>(0x41) }
+  , { "an int64_t",  static_cast<int64_t>(0x41) }
+  , { "a float",  static_cast<float>(1.234) }
+  , { "a double",  static_cast<double>(1.234) }
+  , { "a string",  std::string("Hello, World!") }
+  };
 
-struct ByteProp : public Prop {
-  ByteProp() : Prop(PACKET_PROPERTY_TYPE::BYTE) {}
-  virtual ~ByteProp() {}
-};
-
-struct ShortProp : public Prop {
-  ShortProp() : Prop(PACKET_PROPERTY_TYPE::SHORT) {}
-  virtual ~ShortProp() {}
-};
-
-struct IntProp : public Prop {
-  IntProp() : Prop(PACKET_PROPERTY_TYPE::INTEGER) {}
-  virtual ~IntProp() {}
-};
-
-struct LongProp : public Prop {
-  LongProp() : Prop(PACKET_PROPERTY_TYPE::LONG) {}
-  virtual ~LongProp() {}
-};
-
-struct FloatProp : public Prop {
-  FloatProp() : Prop(PACKET_PROPERTY_TYPE::FLOAT) {}
-  virtual ~FloatProp() {}
-};
-
-struct DoubleProp : public Prop {
-  DoubleProp() : Prop(PACKET_PROPERTY_TYPE::DOUBLE) {}
-  virtual ~DoubleProp() {}
-};
-
-struct StringProp : public Prop {
-  StringProp() : Prop(PACKET_PROPERTY_TYPE::STRING) {}
-  virtual ~StringProp() {}
-};
-
-struct ObjectProp : public Prop {
-  ObjectProp() : Prop(PACKET_PROPERTY_TYPE::OBJECT) {}
-  virtual ~ObjectProp() {}
-};
-
-} // namespace comm_io 
-
-using namespace comm_io;
-
-BOOST_AUTO_TEST_CASE(PropSerializeTest) {
+  std::for_each(myProps.begin(), myProps.end(), [](const std::pair<std::string, MyProp>& e) {
+    std::cout << e.first << " => " << e.second << std::endl;
+    boost::apply_visitor(output(), e.second);
+  });
 }
 
