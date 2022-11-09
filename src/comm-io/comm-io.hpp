@@ -104,7 +104,7 @@ enum struct PACKET_PROPERTY_VERSION : int16_t
   VERSION1 = 1
 };
 
-enum struct PACKET_PROPERTY_TYPE : int16_t
+enum class PACKET_PROPERTY_TYPE : int16_t
 {
   BOOLEAN = 1,
   BYTE = 2,

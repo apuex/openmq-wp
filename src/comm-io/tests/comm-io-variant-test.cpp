@@ -90,8 +90,134 @@ struct encoder: public boost::static_visitor<>
   std::ostream& os_;
 };
 
+msg4r::encode_state writeMyProp(std::ostream& os, const MyProp& v) {
+  encoder theEncoder(os);
+  boost::apply_visitor(theEncoder, v);
+  return msg4r::encode_state::ENCODE_SUCCESS;
+}
+
+msg4r::encode_state writeMyProps(std::ostream& os, const std::map<std::string, MyProp>& v) {
+  MSG4R_SIZE_T length = static_cast<MSG4R_SIZE_T>(v.size());
+  msg4r::write(os, length);
+  std::for_each(v.begin(), v.end(), [&](const std::pair<std::string, MyProp>& e) {
+      msg4r::write(os, e.first);
+      writeMyProp(os, e.second);
+    });
+  return msg4r::encode_state::ENCODE_SUCCESS;
+}
+
+struct decoder {
+public:
+  typedef MyProp value_type;
+  msg4r::decode_state operator()(std::istream& is, value_type& v);
+  void reset();
+      
+private:
+  msg4r::decode_state parseValue(std::istream& is, value_type& v);
+  // intemediate values
+  int16_t type_;
+  int8_t int8Value_;
+  int16_t int16Value_;
+  int32_t int32Value_;
+  int64_t int64Value_;
+  float floatValue_;
+  double doubleValue_;
+  std::string stringValue_;
+  // parsers 
+  msg4r::number_parser<int8_t> parse_int8_;
+  msg4r::number_parser<int16_t> parse_int16_;
+  msg4r::number_parser<int32_t> parse_int32_;
+  msg4r::number_parser<int64_t> parse_int64_;
+  msg4r::number_parser<float32_t> parse_float32_;
+  msg4r::number_parser<float64_t> parse_float64_;
+  msg4r::string_parser parse_string_;
+  int state_;
+};
+
+BEGIN_IMPLEMENT_PARSER(decoder)
+  PARSE_FIELD(parse_int16_, is, type_)
+  PARSE_FIELD(parseValue, is, v)
+END_IMPLEMENT_PARSER()
+
+msg4r::decode_state decoder::parseValue(std::istream& is, value_type& v) {
+  msg4r::decode_state state;
+  switch(static_cast<PACKET_PROPERTY_TYPE>(type_)) {
+    case PACKET_PROPERTY_TYPE::BOOLEAN:
+      state = parse_int8_(is, int8Value_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = static_cast<bool>(int8Value_);
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::BYTE:
+      state = parse_int8_(is, int8Value_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = int8Value_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::SHORT:
+      state = parse_int16_(is, int16Value_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = int16Value_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::INTEGER:
+      state = parse_int32_(is, int32Value_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = int32Value_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::LONG:
+      state = parse_int64_(is, int64Value_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = int64Value_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::FLOAT:
+      state = parse_float32_(is, floatValue_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = floatValue_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::DOUBLE:
+      state = parse_float64_(is, doubleValue_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = doubleValue_;
+      }
+      return state;
+    case PACKET_PROPERTY_TYPE::STRING:
+      state = parse_string_(is, stringValue_);
+      if(msg4r::decode_state::DECODE_SUCCESS == state) {
+        v = stringValue_;
+      }
+      return state;
+    default:
+      return msg4r::decode_state::DECODE_FAILURE;
+  }
+}
+
+void decoder::reset() {
+  type_ = 0;
+  int8Value_ = 0;
+  int16Value_ = 0;
+  int32Value_ = 0;
+  int64Value_ = 0;
+  floatValue_ = 0;
+  doubleValue_ = 0;
+  stringValue_ = "";
+  parse_int8_.reset();
+  parse_int16_.reset();
+  parse_int32_.reset();
+  parse_int64_.reset();
+  parse_float32_.reset();
+  parse_float64_.reset();
+  parse_string_.reset();
+  state_ = 0;
+}
+
+typedef msg4r::map_parser<msg4r::string_parser, decoder> PropsDecoder;
+
 BOOST_AUTO_TEST_CASE(VariantTest) {
-  std::map<std::string, MyProp> myProps
+  std::map<std::string, MyProp> myProps1
   =
   { { "a bool",  true }
   , { "anther bool",  false }
@@ -104,10 +230,12 @@ BOOST_AUTO_TEST_CASE(VariantTest) {
   , { "a string",  std::string("Hello, World!") }
   };
 
+  std::map<std::string, MyProp> myProps2;
+
   std::stringstream ssm;
   encoder theEncoder(ssm);
   
-  std::for_each(myProps.begin(), myProps.end(), [&](const std::pair<std::string, MyProp>& e) {
+  std::for_each(myProps1.begin(), myProps1.end(), [&](const std::pair<std::string, MyProp>& e) {
     std::cout << e.first << " => " << e.second << std::endl;
     boost::apply_visitor(output(), e.second);
     boost::apply_visitor(theEncoder, e.second);
@@ -115,5 +243,26 @@ BOOST_AUTO_TEST_CASE(VariantTest) {
 
   std::cout << "\nencoded bytes: ";
   msg4r::print_bytes(std::cout, ssm.str());
+
+  std::stringstream ssmProps;
+  writeMyProps(ssmProps, myProps1);
+  std::cout << "\nMyProps encoded bytes: ";
+  msg4r::print_bytes(std::cout, ssmProps.str());
+  
+  ssm.seekg(0);
+  PropsDecoder decodeProps;
+  msg4r::decode_state state = decodeProps(ssmProps, myProps2);
+
+  std::cout << std::dec << std::setw(0); 
+  std::cout << "\nMyProps decoded values: ";
+  std::for_each(myProps2.begin(), myProps2.end(), [&](const std::pair<std::string, MyProp>& e) {
+    std::cout << e.first << " => " << e.second << std::endl;
+    boost::apply_visitor(output(), e.second);
+    boost::apply_visitor(theEncoder, e.second);
+  });
+
+  BOOST_TEST(msg4r::decode_state::DECODE_SUCCESS == state);
+  BOOST_TEST(myProps1 == myProps2);
+  std::cout << "(myProps1 == myProps2) => " << (myProps1 == myProps2) << std::endl;
 }
 
