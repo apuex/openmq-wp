@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(IPAddressTest) {
   
   std::stringstream ssm;
   write(ssm, id1);
+  std::cout << "encoding id1: ";
   print_bytes(std::cout, ssm.str());
 
   ssm.seekg(0);
