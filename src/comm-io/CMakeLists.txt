@@ -10,6 +10,7 @@ set_target_properties(comm-io PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(FILES
   comm-io.hpp
+  comm-io-codec.hpp
   DESTINATION include
   CONFIGURATIONS Release
   COMPONENT libraries)
