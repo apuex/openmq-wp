@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include <boost/chrono.hpp>
 #ifdef _WIN32
@@ -11,6 +12,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/variant.hpp>
 
 enum struct PACKET_VERSION : int16_t
 {
@@ -22,7 +24,36 @@ enum struct PACKET_VERSION : int16_t
 struct IPAddress
 {
   uint8_t ip_[16];
+
+  IPAddress& operator=(const IPAddress& rhs) {
+    for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
+      ip_[i] = rhs.ip_[i];
+    }
+    return *this;
+  }
 };
+
+bool operator==(const IPAddress& lhs, const IPAddress& rhs) {
+  for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
+    if(lhs.ip_[i] != rhs.ip_[i]) return false;
+  }
+  return true;
+}
+
+std::ostream& operator<<(std::ostream& os, const IPAddress& rhs) {
+  os << "IPAddress { ";
+  for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
+    os
+      << std::hex
+      << std::uppercase
+      << std::setw(2)
+      << std::setfill('0')
+      << (0xFF & rhs.ip_[i])
+      << " ";
+  }
+  os << "}";
+  return os;
+}
 
 struct SysMessageID
 {
@@ -117,15 +148,20 @@ enum class PACKET_PROPERTY_TYPE : int16_t
   OBJECT = 9
 };
 
-struct PacketProperty
-{
-  typedef boost::shared_ptr<PacketProperty> Ptr;
-  PACKET_PROPERTY_TYPE type_;
-};
+typedef boost::variant
+  < bool
+  , int8_t 
+  , int16_t 
+  , int32_t 
+  , int64_t 
+  , float 
+  , double 
+  , std::string
+  > PacketProperty;
 
 struct PacketPayload
 {
-  std::map<std::string, PacketProperty::Ptr> properties_;  
+  std::map<std::string, PacketProperty> properties_;  
 };
 
 class Packet

@@ -23,6 +23,7 @@ INSTALL(TARGETS
 if(ENABLE_TESTS)
   set(unit_tests
     comm-io-fail-test
+    comm-io-ipaddress-test
     comm-io-variant-test
   )
 
