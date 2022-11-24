@@ -24,36 +24,10 @@ enum struct PACKET_VERSION : int16_t
 struct IPAddress
 {
   uint8_t ip_[16];
-
-  IPAddress& operator=(const IPAddress& rhs) {
-    for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
-      ip_[i] = rhs.ip_[i];
-    }
-    return *this;
-  }
 };
 
-bool operator==(const IPAddress& lhs, const IPAddress& rhs) {
-  for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
-    if(lhs.ip_[i] != rhs.ip_[i]) return false;
-  }
-  return true;
-}
-
-std::ostream& operator<<(std::ostream& os, const IPAddress& rhs) {
-  os << "IPAddress { ";
-  for(size_t i = 0; i != sizeof(IPAddress::ip_); ++i) {
-    os
-      << std::hex
-      << std::uppercase
-      << std::setw(2)
-      << std::setfill('0')
-      << (0xFF & rhs.ip_[i])
-      << " ";
-  }
-  os << "}";
-  return os;
-}
+bool operator==(const IPAddress& lhs, const IPAddress& rhs);
+std::ostream& operator<<(std::ostream& os, const IPAddress& v);
 
 struct SysMessageID
 {
@@ -63,6 +37,9 @@ struct SysMessageID
   int32_t sourcePort_;
   int32_t sequenceNo_;
 };
+
+bool operator==(const SysMessageID& lhs, const SysMessageID& rhs);
+std::ostream& operator<<(std::ostream& os, const SysMessageID& v);
 
 struct PacketHeader
 {

@@ -1,6 +1,8 @@
 SET(COMM_IO_SRCS
   comm-io.hpp
   comm-io.cpp
+  comm-io-codec.hpp
+  comm-io-codec.cpp
 )
 
 ADD_LIBRARY(comm-io STATIC ${COMM_IO_SRCS})
@@ -24,13 +26,18 @@ if(ENABLE_TESTS)
   set(unit_tests
     comm-io-fail-test
     comm-io-ipaddress-test
+    comm-io-sysmessageid-test
     comm-io-variant-test
   )
 
 foreach(unit_test ${unit_tests})
   add_executable("${unit_test}" "tests/${unit_test}.cpp")
   target_include_directories(${unit_test} PRIVATE ${Boost_INCLUDE_DIRS})
-  target_link_libraries(${unit_test} msg4r ${Boost_LIBRARIES} ${Boost_unit_test_framework})
+  target_link_libraries(${unit_test}
+    msg4r
+    comm-io
+    ${Boost_LIBRARIES}
+    ${Boost_unit_test_framework})
   if(UNIX)
     set_target_properties("${unit_test}" PROPERTIES LINK_FLAGS_RELEASE -s)
   else(UNIX)
