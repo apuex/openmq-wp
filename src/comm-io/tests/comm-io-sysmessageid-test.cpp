@@ -11,6 +11,7 @@
 #include <comm-io-codec.hpp>
 
 using namespace msg4r;
+using namespace openmq;
 
 BOOST_AUTO_TEST_CASE(IPAddressTest) {
   SysMessageID id1 {

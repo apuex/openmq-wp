@@ -1,30 +1,32 @@
 #include "comm-io.hpp"
 #include "msg4r.hpp"
 
-std::ostream& write(std::ostream& os, const IPAddress& v);
+namespace openmq {
 
-class IPAddressParser {
-public:
-  IPAddressParser();
-  msg4r::decode_state operator()(std::istream& is, IPAddress& v);
-  void reset();
+  std::ostream& write(std::ostream& os, const IPAddress& v);
 
-private:
-  size_t index_;
-  IPAddress t_;
-};
+  class IPAddressParser {
+  public:
+    IPAddressParser();
+    msg4r::decode_state operator()(std::istream& is, IPAddress& v);
+    void reset();
 
-std::ostream& write(std::ostream& os, const SysMessageID& v);
+  private:
+    size_t index_;
+    IPAddress t_;
+  };
 
-class SysMessageIDParser {
-  DECLARE_PARSER_FOR(SysMessageID)
-public:
-  SysMessageIDParser();
-  
-private:
-  msg4r::number_parser<int64_t> parse_int64_;
-  IPAddressParser parse_ipaddress_;
-  msg4r::number_parser<int32_t> parse_int32_;
-};
+  std::ostream& write(std::ostream& os, const SysMessageID& v);
 
+  class SysMessageIDParser {
+    DECLARE_PARSER_FOR(SysMessageID)
+  public:
+    SysMessageIDParser();
 
+  private:
+    msg4r::number_parser<int64_t> parse_int64_;
+    IPAddressParser parse_ipaddress_;
+    msg4r::number_parser<int32_t> parse_int32_;
+  };
+
+}

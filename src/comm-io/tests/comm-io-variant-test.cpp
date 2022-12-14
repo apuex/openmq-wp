@@ -11,6 +11,8 @@
 #include <comm-io.hpp>
 #include <msg4r.hpp>
 
+using namespace openmq;
+
 typedef boost::variant
   < bool
   , int8_t 
