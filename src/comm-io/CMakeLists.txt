@@ -28,6 +28,7 @@ if(ENABLE_TESTS)
     comm-io-fail-test
     comm-io-ipaddress-test
     comm-io-sysmessageid-test
+    comm-io-packetheader-test
     comm-io-variant-test
   )
 

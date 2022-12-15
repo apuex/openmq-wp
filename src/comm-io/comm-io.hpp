@@ -60,6 +60,9 @@ namespace openmq {
     int64_t consumerID_; // VERSION1: int
   };
 
+  bool operator==(const PacketHeader& lhs, const PacketHeader& rhs);
+  std::ostream& operator<<(std::ostream& os, const PacketHeader& v);
+
   enum struct PVHDR_TYPE : int16_t
   {
     PVHDR_NULL = 0, // NULL cause name clash.

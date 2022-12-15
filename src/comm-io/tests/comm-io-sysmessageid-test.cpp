@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE IPAddress Test
+#define BOOST_TEST_MODULE SysMessageID Test
 #include <boost/test/included/unit_test.hpp>
 #include <boost/variant.hpp>
 
@@ -13,7 +13,7 @@
 using namespace msg4r;
 using namespace openmq;
 
-BOOST_AUTO_TEST_CASE(IPAddressTest) {
+BOOST_AUTO_TEST_CASE(SysMessageIDTest) {
   SysMessageID id1 {
     1,
     { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } },

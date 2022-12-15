@@ -29,4 +29,19 @@ namespace openmq {
     msg4r::number_parser<int32_t> parse_int32_;
   };
 
+  std::ostream& write(std::ostream& os, const PacketHeader& v);
+
+  class PacketHeaderParser {
+    DECLARE_PARSER_FOR(PacketHeader)
+  public:
+    PacketHeaderParser();
+
+  private:
+    msg4r::number_parser<int8_t> parse_int8_;
+    msg4r::number_parser<int16_t> parse_int16_;
+    msg4r::number_parser<int32_t> parse_int32_;
+    msg4r::number_parser<int64_t> parse_int64_;
+    SysMessageIDParser parse_sysMessageID_;
+  };
+
 }
