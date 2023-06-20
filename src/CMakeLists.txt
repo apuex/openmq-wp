@@ -98,6 +98,7 @@ endif(ENABLE_TESTS)
 
 add_subdirectory(msg4r)
 add_subdirectory(comm-io)
+add_subdirectory(dump-packet)
 
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME runtimes)
 

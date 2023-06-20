@@ -15,10 +15,10 @@ using namespace openmq;
 
 BOOST_AUTO_TEST_CASE(PacketHeaderTest) {
   PacketHeader hdr1 {
-    0, // int32_t magic_;
-    1, // int16_t version_;
-    2, // int16_t packetType_;
-    3, // int32_t packetSize_;
+    469754818, // int32_t magic_;
+    301, // int16_t version_;  // VERSION3, which is the DEFAULT_VERSION.
+    2, // int16_t packetType_; // BYTES_MESSAGE
+    72, // int32_t packetSize_;
     // int32_t transactionId_; // VERSION1 only
     5, // int64_t expiration_;
     {
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(PacketHeaderTest) {
   
   std::stringstream ssm;
   write(ssm, hdr1);
-  std::cout << "encoding hdr1: ";
+  std::cout << "encoding hdr1(" << ssm.tellp() << "): ";
   print_bytes(std::cout, ssm.str());
 
   ssm.seekg(0);

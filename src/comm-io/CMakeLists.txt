@@ -30,6 +30,7 @@ if(ENABLE_TESTS)
     comm-io-sysmessageid-test
     comm-io-packetheader-test
     comm-io-variant-test
+    comm-io-variant-struct-test
   )
 
 foreach(unit_test ${unit_tests})
