@@ -54,9 +54,22 @@ LINK_DIRECTORIES(
   ${CMAKE_INSTALL_PREFIX}/lib
 )
 
-set(Boost_USE_STATIC_LIBS       OFF) # only find static libs
+set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
+
+include(CheckIncludeFile)
+CHECK_INCLUDE_FILE(stdint.h  HAVE_CSTDINT)
+if(HAVE_CSTDINT)
+  ADD_DEFINITIONS(-DHAVE_CSTDINT=1)
+  MESSAGE("-DHAVE_CSTDINT=1")
+endif()
+
+CHECK_INCLUDE_FILE(stdbool.h  HAVE_CSTDBOOL)
+if(HAVE_CSTDBOOL)
+  ADD_DEFINITIONS(-DHAVE_CSTDBOOL=1)
+  MESSAGE("-DHAVE_CSTDBOOL=1")
+endif()
 
 if(MSVC)
 find_package(PThreads4W REQUIRED)
