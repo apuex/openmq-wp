@@ -98,7 +98,9 @@ bool writeMyProp(apuex::byte_buffer& buf, const MyProp& v) {
 }
 
 bool writeMyProps(apuex::byte_buffer& buf, const std::map<std::string, MyProp>& v) {
+  uint32_t version1 = 1;
   uint32_t length = static_cast<uint32_t>(v.size());
+  buf.writeBigEndian(version1);
   buf.writeBigEndian(length);
   std::for_each(v.begin(), v.end(), [&](const std::pair<std::string, MyProp>& e) {
       writeUTF(buf, e.first);
@@ -174,7 +176,9 @@ bool readMyProp(apuex::byte_buffer& buf, MyProp& v) {
 
 
 bool readMyProps(apuex::byte_buffer& buf, std::map<std::string, MyProp>& v) {
+  uint32_t version1;
   uint32_t length;
+  if(!buf.readBigEndian(version1)) return false;
   if(!buf.readBigEndian(length)) return false;
   for (uint32_t i = 0; i != length; ++i) {
     std::string key;
