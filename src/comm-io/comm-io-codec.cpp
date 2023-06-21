@@ -61,34 +61,34 @@ namespace openmq {
 
   // PacketHeader
   bool read(apuex::byte_buffer& buf, PacketHeader& v) {
-    buf.readBigEndian(v.magic_);
-    buf.readBigEndian(v.version_);
-    buf.readBigEndian(v.packetType_);
-    buf.readBigEndian(v.packetSize_);
-    buf.readBigEndian(v.expiration_);
-    read(buf, v.sysMessageID_);
-    buf.readBigEndian(v.propertyOffset_);
-    buf.readBigEndian(v.propertySize_);
-    buf.readBigEndian(v.priority_);
-    buf.readBigEndian(v.encryption_);
-    buf.readBigEndian(v.bitFlags_);
-    buf.readBigEndian(v.consumerID_);
+    if (!buf.readBigEndian(v.magic_)) return false;
+    if (!buf.readBigEndian(v.version_)) return false;
+    if (!buf.readBigEndian(v.packetType_)) return false;
+    if (!buf.readBigEndian(v.packetSize_)) return false;
+    if (!buf.readBigEndian(v.expiration_)) return false;
+    if (!read(buf, v.sysMessageID_)) return false;
+    if (!buf.readBigEndian(v.propertyOffset_)) return false;
+    if (!buf.readBigEndian(v.propertySize_)) return false;
+    if (!buf.readBigEndian(v.priority_)) return false;
+    if (!buf.readBigEndian(v.encryption_)) return false;
+    if (!buf.readBigEndian(v.bitFlags_)) return false;
+    if (!buf.readBigEndian(v.consumerID_)) return false;
     return true;
   }
 
   bool write(apuex::byte_buffer& buf, const PacketHeader& v) {
-    buf.writeBigEndian(v.magic_);
-    buf.writeBigEndian(v.version_);
-    buf.writeBigEndian(v.packetType_);
-    buf.writeBigEndian(v.packetSize_);
-    buf.writeBigEndian(v.expiration_);
-    write(buf, v.sysMessageID_);
-    buf.writeBigEndian(v.propertyOffset_);
-    buf.writeBigEndian(v.propertySize_);
-    buf.writeBigEndian(v.priority_);
-    buf.writeBigEndian(v.encryption_);
-    buf.writeBigEndian(v.bitFlags_);
-    buf.writeBigEndian(v.consumerID_);
+    if (!buf.writeBigEndian(v.magic_)) return false;
+    if (!buf.writeBigEndian(v.version_)) return false;
+    if (!buf.writeBigEndian(v.packetType_)) return false;
+    if (!buf.writeBigEndian(v.packetSize_)) return false;
+    if (!buf.writeBigEndian(v.expiration_)) return false;
+    if (!write(buf, v.sysMessageID_)) return false;
+    if (!buf.writeBigEndian(v.propertyOffset_)) return false;
+    if (!buf.writeBigEndian(v.propertySize_)) return false;
+    if (!buf.writeBigEndian(v.priority_)) return false;
+    if (!buf.writeBigEndian(v.encryption_)) return false;
+    if (!buf.writeBigEndian(v.bitFlags_)) return false;
+    if (!buf.writeBigEndian(v.consumerID_)) return false;
     return true;
   }
 
