@@ -7,7 +7,7 @@ cmake.exe ^
 -DCMAKE_MODULE_LINKER_FLAGS="/machine:amd64 /subsystem:console,6.00" ^
 -DCMAKE_STATIC_LINKER_FLAGS="/machine:amd64 /subsystem:console,6.00" ^
 -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL ^
--DCMAKE_INSTALL_PREFIX=C:/Users/xtwxy/github/Microsoft/vcpkg/installed/x64-windows/ ^
+-DCMAKE_INSTALL_PREFIX=C:/Users/xtwxy/github/Microsoft/vcpkg/installed/x64-windows ^
 -DPThreads4W_INCLUDE_DIR=C:/Users/xtwxy/github/Microsoft/vcpkg/installed/x64-windows/include ^
 -DPThreads4W_LIBRARY=C:/Users/xtwxy/github/Microsoft/vcpkg/installed/x64-windows/lib ^
 -DPThreads4W_CXXEXC_LIBRARY=C:/Users/xtwxy/github/Microsoft/vcpkg/installed/x64-windows/bin ^

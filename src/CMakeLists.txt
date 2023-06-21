@@ -35,8 +35,8 @@ if(MSVC)
     set(OS_BIT "win32")
   endif()
   SET(CMAKE_CXX_FLAGS "/MD /EHsc")
-  ADD_DEFINITIONS(-D_WIN32_WINNT=0x0502)
-  ADD_DEFINITIONS(-DWIN32_LEAN_AND_MEAN)
+  #ADD_DEFINITIONS(-D_WIN32_WINNT=0x0502)
+  #ADD_DEFINITIONS(-DWIN32_LEAN_AND_MEAN)
 else()
   EXECUTE_PROCESS( COMMAND uname -s COMMAND tr -d '\n' OUTPUT_VARIABLE OSNAME )
   EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE OSARCH )
@@ -54,39 +54,39 @@ LINK_DIRECTORIES(
   ${CMAKE_INSTALL_PREFIX}/lib
 )
 
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-
 include(CheckIncludeFile)
 CHECK_INCLUDE_FILE(stdint.h  HAVE_CSTDINT)
 if(HAVE_CSTDINT)
   ADD_DEFINITIONS(-DHAVE_CSTDINT=1)
   MESSAGE("-DHAVE_CSTDINT=1")
-endif()
+endif(HAVE_CSTDINT)
 
 CHECK_INCLUDE_FILE(stdbool.h  HAVE_CSTDBOOL)
 if(HAVE_CSTDBOOL)
   ADD_DEFINITIONS(-DHAVE_CSTDBOOL=1)
   MESSAGE("-DHAVE_CSTDBOOL=1")
-endif()
+endif(HAVE_CSTDBOOL)
 
 if(MSVC)
+set(Boost_USE_STATIC_LIBS       OFF) # only find static libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(PThreads4W REQUIRED)
-find_package(Boost 1.80.0 REQUIRED COMPONENTS
+find_package(Boost 1.75.0 REQUIRED COMPONENTS
   date_time
   json
-  serialization
   program_options
   log
   unit_test_framework
   )
 else(MSVC)
+set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Threads REQUIRED)
 find_package(Boost 1.75.0 REQUIRED COMPONENTS
   date_time
   json
-  serialization
   program_options
   log
   unit_test_framework
