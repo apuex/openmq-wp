@@ -2,8 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/variant.hpp>
 
-#include <comm-io.hpp>
-#include <msg4r.hpp>
+#include <comm-io-codec.hpp>
 #include <sstream>
 
 using namespace openmq;

@@ -43,9 +43,6 @@ else()
   set(OS_BIT "${OSNAME}-${OSARCH}")
 endif()
 
-ADD_DEFINITIONS(-DMSG4R_BIG_ENDIAN)
-ADD_DEFINITIONS(-DMSG4R_SIZE_T=uint16_t)
-
 INCLUDE_DIRECTORIES(
   msg4r
   comm-io
@@ -57,10 +54,21 @@ LINK_DIRECTORIES(
   ${CMAKE_INSTALL_PREFIX}/lib
 )
 
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+set(Boost_USE_STATIC_LIBS       OFF) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
+if(MSVC)
+find_package(PThreads4W REQUIRED)
+find_package(Boost 1.80.0 REQUIRED COMPONENTS
+  date_time
+  json
+  serialization
+  program_options
+  log
+  unit_test_framework
+  )
+else(MSVC)
 find_package(Threads REQUIRED)
 find_package(Boost 1.75.0 REQUIRED COMPONENTS
   date_time
@@ -70,7 +78,11 @@ find_package(Boost 1.75.0 REQUIRED COMPONENTS
   log
   unit_test_framework
   )
+endif(MSVC)
+
 if(Boost_FOUND)
+  add_definitions(-DBOOST_CHRONO_VERSION=2)
+  add_definitions(-DBOOST_LOG_USE_NATIVE_SYSLOG)
   include_directories(${Boost_INCLUDE_DIRS})
   link_directories(${Boost_LIBRARY_DIRS})
 endif()
@@ -96,7 +108,6 @@ if(ENABLE_TESTS)
 
 endif(ENABLE_TESTS)
 
-add_subdirectory(msg4r)
 add_subdirectory(comm-io)
 add_subdirectory(dump-packet)
 

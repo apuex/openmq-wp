@@ -37,7 +37,6 @@ foreach(unit_test ${unit_tests})
   add_executable("${unit_test}" "tests/${unit_test}.cpp")
   target_include_directories(${unit_test} PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(${unit_test}
-    msg4r
     comm-io
     ${Boost_LIBRARIES}
     ${Boost_unit_test_framework})

@@ -42,8 +42,9 @@ namespace openmq {
   bool operator==(const SysMessageID& lhs, const SysMessageID& rhs);
   std::ostream& operator<<(std::ostream& os, const SysMessageID& v);
 
+  /*
   enum PacketType {
-    NULL_MESSAGE = 0,
+    NULL = 0,
     TEXT_MESSAGE = 1,
     BYTES_MESSAGE = 2,
     MAP_MESSAGE = 3,
@@ -117,6 +118,7 @@ namespace openmq {
     VERIFY_TRANSACTION_REPLY = 79,
     LAST = 80
   };
+  */
 
   struct PacketHeader
   {

@@ -10,7 +10,6 @@
 
 #include <comm-io-codec.hpp>
 
-using namespace msg4r;
 using namespace openmq;
 
 BOOST_AUTO_TEST_CASE(SysMessageIDTest) {
@@ -22,17 +21,15 @@ BOOST_AUTO_TEST_CASE(SysMessageIDTest) {
   };
   SysMessageID id2;
   
-  std::stringstream ssm;
-  write(ssm, id1);
-  std::cout << "encoding id1: ";
-  print_bytes(std::cout, ssm.str());
+  uint8_t buffer[256];
+  apuex::byte_buffer outbuf(buffer, 0, 0, sizeof(buffer));
+  BOOST_TEST(true == write(outbuf, id1));
 
-  ssm.seekg(0);
-  SysMessageIDParser parse;
-  decode_state state = parse(ssm, id2);
+  apuex::byte_buffer inbuf(buffer, 0, outbuf.element_count(), sizeof(buffer));
+  const bool decodeResult = read(inbuf, id2);
 
-  BOOST_TEST(32 == ssm.tellg());
-  BOOST_TEST(decode_state::DECODE_SUCCESS == state);
+  BOOST_TEST(32 == outbuf.element_count());
+  BOOST_TEST(true == decodeResult);
   std::cout << "id1 = " << id1<< std::endl;
   std::cout << "id2 = " << id2 << std::endl;
   std::cout << "(id1 == id2) => " << (id1 == id2) << std::endl;

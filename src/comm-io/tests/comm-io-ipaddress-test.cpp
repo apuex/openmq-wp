@@ -21,12 +21,12 @@ BOOST_AUTO_TEST_CASE(IPAddressTest) {
   std::cout << "sizeof(IPAddress::ip_) = " << sizeof(IPAddress::ip_) << std::endl;
   BOOST_TEST(sizeof(IPAddress) == 16);
   
-  std::stringstream ssm;
-  write(ssm, ipaddr1);
+  uint8_t buffer[256];
+  apuex::byte_buffer outbuf(buffer, 0, 0, sizeof(buffer));
+  write(outbuf, ipaddr1);
   
-  ssm.seekg(0);
-  IPAddressParser parse;
-  parse(ssm, ipaddr2);
+  apuex::byte_buffer inbuf(buffer, 0, outbuf.element_count(), sizeof(buffer));
+  read(inbuf, ipaddr2);
   std::cout << "ipaddr1 = " << ipaddr1 << std::endl;
   std::cout << "ipaddr2 = " << ipaddr2 << std::endl;
   std::cout << "(ipaddr1 == ipaddr2) => " << (ipaddr1 == ipaddr2) << std::endl;

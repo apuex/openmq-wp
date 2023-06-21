@@ -1,110 +1,105 @@
 #include <comm-io-codec.hpp>
 
 namespace openmq {
+  // String, UTF
+  bool readUTF(apuex::byte_buffer& buf, std::string& v) {
+    uint16_t ssize;
+    if (!buf.readBigEndian(ssize)) return false;
+
+    for (uint16_t i = 0; i != ssize; ++i) {
+      uint8_t b;
+      if (!buf.readBigEndian(b)) return false;
+      v.push_back(b);
+    }
+    return true;
+  }
+
+  bool writeUTF(apuex::byte_buffer& buf, const std::string& v) {
+    size_t size = v.length();
+    if (0xFFFF < size) return false;
+    uint16_t ssize = static_cast<uint16_t>(size);
+    if (!buf.writeBigEndian(ssize)) return false;
+
+    for (auto it = v.begin(); it != v.end(); ++it) {
+      uint8_t b = static_cast<uint8_t>(*it);
+      if (!buf.writeBigEndian(b)) return false;
+    }
+    return true;
+  }
+
   // IPAddress
-  std::ostream& write(std::ostream& os, const IPAddress& v) {
-    os.write(reinterpret_cast<const char*>(v.ip_), sizeof(v.ip_));
-    return os;
+  bool read(apuex::byte_buffer& buf, IPAddress& v) {
+    for (size_t i = 0; i != sizeof(v.ip_); ++i) {
+      if (!buf.readBigEndian(v.ip_[i])) return false;
+    }
+    return true;
   }
 
-  IPAddressParser::IPAddressParser() : index_(0), t_() { }
-
-  msg4r::decode_state IPAddressParser::operator()(std::istream& is, IPAddress& v) {
-    if (is.eof()) return msg4r::decode_state::DECODE_INPROGRESS;
-    is.read((char*)&t_ + index_, sizeof(IPAddress) - index_);
-    auto count = is.gcount();
-    if (0 == count) return msg4r::decode_state::DECODE_INPROGRESS;
-    index_ += count;
-    if (index_ != sizeof(IPAddress)) {
-      return msg4r::decode_state::DECODE_INPROGRESS;
+  bool write(apuex::byte_buffer& buf, const IPAddress& v) {
+    for (size_t i = 0; i != sizeof(v.ip_); ++i) {
+      if (!buf.writeBigEndian(v.ip_[i])) return false;
     }
-    else {
-      v = t_;
-      index_ = 0; // reset to initial state
-      return msg4r::decode_state::DECODE_SUCCESS;
-    }
+    return true;
   }
-
-  void IPAddressParser::reset() { index_ = 0; }
 
   // SysMessageID
-  std::ostream& write(std::ostream& os, const SysMessageID& v) {
-    msg4r::write(os, v.timestamp_);
-    write(os, v.sourceIP_);
-    msg4r::write(os, v.sourcePort_);
-    msg4r::write(os, v.sequenceNo_);
-    return os;
+  bool read(apuex::byte_buffer& buf, SysMessageID& v) {
+    if (!buf.readBigEndian(v.timestamp_)) return false;
+    if (!read(buf, v.sourceIP_)) return false;
+    if (!buf.readBigEndian(v.sourcePort_)) return false;
+    if (!buf.readBigEndian(v.sequenceNo_)) return false;
+    return true;
   }
 
-  BEGIN_IMPLEMENT_PARSER(SysMessageIDParser)
-    PARSE_FIELD(parse_int64_, is, v.timestamp_)
-    PARSE_FIELD(parse_ipaddress_, is, v.sourceIP_)
-    PARSE_FIELD(parse_int32_, is, v.sourcePort_)
-    PARSE_FIELD(parse_int32_, is, v.sequenceNo_)
-    END_IMPLEMENT_PARSER()
-
-    SysMessageIDParser::SysMessageIDParser()
-    : state_()
-    , parse_int64_()
-    , parse_ipaddress_()
-    , parse_int32_()
-  {}
-
-  void SysMessageIDParser::reset() {
-    parse_int64_.reset();
-    parse_ipaddress_.reset();
-    parse_int32_.reset();
+  bool write(apuex::byte_buffer& buf, const SysMessageID& v) {
+    if (!buf.writeBigEndian(v.timestamp_)) return false;
+    if (!write(buf, v.sourceIP_)) return false;
+    if (!buf.writeBigEndian(v.sourcePort_)) return false;
+    if (!buf.writeBigEndian(v.sequenceNo_)) return false;
+    return true;
   }
 
   // PacketHeader
-  
-  std::ostream& write(std::ostream& os, const PacketHeader& v) {
-    msg4r::write(os, v.magic_);
-    msg4r::write(os, v.version_);
-    msg4r::write(os, v.packetType_);
-    msg4r::write(os, v.packetSize_);
-    msg4r::write(os, v.expiration_);
-    write(os, v.sysMessageID_);
-    msg4r::write(os, v.propertyOffset_);
-    msg4r::write(os, v.propertySize_);
-    msg4r::write(os, v.priority_);
-    msg4r::write(os, v.encryption_);
-    msg4r::write(os, v.bitFlags_);
-    msg4r::write(os, v.consumerID_);
-    return os;
+  bool read(apuex::byte_buffer& buf, PacketHeader& v) {
+    buf.readBigEndian(v.magic_);
+    buf.readBigEndian(v.version_);
+    buf.readBigEndian(v.packetType_);
+    buf.readBigEndian(v.packetSize_);
+    buf.readBigEndian(v.expiration_);
+    read(buf, v.sysMessageID_);
+    buf.readBigEndian(v.propertyOffset_);
+    buf.readBigEndian(v.propertySize_);
+    buf.readBigEndian(v.priority_);
+    buf.readBigEndian(v.encryption_);
+    buf.readBigEndian(v.bitFlags_);
+    buf.readBigEndian(v.consumerID_);
+    return true;
   }
 
-  BEGIN_IMPLEMENT_PARSER(PacketHeaderParser)
-    PARSE_FIELD(parse_int32_, is, v.magic_)
-    PARSE_FIELD(parse_int16_, is, v.version_)
-    PARSE_FIELD(parse_int16_, is, v.packetType_)
-    PARSE_FIELD(parse_int32_, is, v.packetSize_)
-    PARSE_FIELD(parse_int64_, is, v.expiration_)
-    PARSE_FIELD(parse_sysMessageID_, is, v.sysMessageID_)
-    PARSE_FIELD(parse_int32_, is, v.propertyOffset_)
-    PARSE_FIELD(parse_int32_, is, v.propertySize_)
-    PARSE_FIELD(parse_int8_, is, v.priority_)
-    PARSE_FIELD(parse_int8_, is, v.encryption_)
-    PARSE_FIELD(parse_int16_, is, v.bitFlags_)
-    PARSE_FIELD(parse_int64_, is, v.consumerID_)
-  END_IMPLEMENT_PARSER()
-
-    PacketHeaderParser::PacketHeaderParser()
-    : state_()
-    , parse_int8_()
-    , parse_int16_()
-    , parse_int32_()
-    , parse_int64_()
-    , parse_sysMessageID_()
-  {}
-
-  void PacketHeaderParser::reset() {
-    parse_int8_.reset();
-    parse_int16_.reset();
-    parse_int32_.reset();
-    parse_int64_.reset();
-    parse_sysMessageID_.reset();
+  bool write(apuex::byte_buffer& buf, const PacketHeader& v) {
+    buf.writeBigEndian(v.magic_);
+    buf.writeBigEndian(v.version_);
+    buf.writeBigEndian(v.packetType_);
+    buf.writeBigEndian(v.packetSize_);
+    buf.writeBigEndian(v.expiration_);
+    write(buf, v.sysMessageID_);
+    buf.writeBigEndian(v.propertyOffset_);
+    buf.writeBigEndian(v.propertySize_);
+    buf.writeBigEndian(v.priority_);
+    buf.writeBigEndian(v.encryption_);
+    buf.writeBigEndian(v.bitFlags_);
+    buf.writeBigEndian(v.consumerID_);
+    return true;
   }
- 
+
+
+  void print_bytes(std::ostream& os, const char* buff, const size_t length) {
+    os << "[ ";
+    for (size_t i = 0; i != length; ++i) {
+      os << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+        << (static_cast<uint32_t>(buff[i]) & 0xff) << " ";
+    }
+    os << "]" << std::endl;
+  }
 
 }

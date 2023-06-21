@@ -10,7 +10,6 @@
 
 #include <comm-io-codec.hpp>
 
-using namespace msg4r;
 using namespace openmq;
 
 BOOST_AUTO_TEST_CASE(PacketHeaderTest) {
@@ -36,17 +35,17 @@ BOOST_AUTO_TEST_CASE(PacketHeaderTest) {
   };
   PacketHeader hdr2;
   
-  std::stringstream ssm;
-  write(ssm, hdr1);
-  std::cout << "encoding hdr1(" << ssm.tellp() << "): ";
-  print_bytes(std::cout, ssm.str());
+  uint8_t buffer[0xFFFF];
+  apuex::byte_buffer outbuf(buffer, 0, 0, sizeof(buffer));
+  write(outbuf, hdr1);
+  std::cout << "encoding hdr1(" << outbuf.element_count() << "): ";
+  print_bytes(std::cout, buffer, buffer + outbuf.element_count());
 
-  ssm.seekg(0);
-  PacketHeaderParser parse;
-  decode_state state = parse(ssm, hdr2);
+  apuex::byte_buffer inbuf(buffer, 0, outbuf.element_count(), sizeof(buffer));
+  bool state = read(inbuf, hdr2);
 
-  BOOST_TEST(72 == ssm.tellg());
-  BOOST_TEST(decode_state::DECODE_SUCCESS == state);
+  BOOST_TEST(72 == outbuf.element_count());
+  BOOST_TEST(true == state);
   std::cout << "hdr1 = " << hdr1 << std::endl;
   std::cout << "hdr2 = " << hdr2 << std::endl;
   std::cout << "(hdr1 == hdr2) => " << (hdr1 == hdr2) << std::endl;
